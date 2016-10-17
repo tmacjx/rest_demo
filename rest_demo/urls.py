@@ -22,8 +22,9 @@ api_v1 = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # url(r'', include('BHU.rest_user.urls'))
-    url(r'', include('account.urls')),
+    url(r'^', include('account.urls')),
 
+    url(r'^', include('server.rest_account.urls')),
 
 ]
 

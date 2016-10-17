@@ -1,19 +1,27 @@
 # coding=utf-8
-from rest_framework.views import APIView
+from rest_framework.views import APIView, Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework import viewsets
-# 根据request.method，自动调用对应的handler,比如get请求，自动去调用get()方法
-# 常用的有.get(), .post(), put(), patch() and .delete().
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 
-from models import User
-from serializers import LoginSerializer, UserSerializer
+from serializers import LoginSerializer, UserSerializer, SignUpSerializer, CartSerializer, ProductSerializer
 
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.permissions import IsAdminUser, AllowAny
+from models import Product, Cart
+from rest_framework import status
+from rest_framework.viewsets import ReadOnlyModelViewSet
+from viewSet import AlterModelViewSet
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+
+from django.views.generic.base import View
 
 
 class CartView(APIView):
@@ -45,11 +53,10 @@ class CartView(APIView):
     def delete(self, request, pk):
         pass
 
-# rest_framework.generics 生成视图
 
-
+# 用作API测试登陆用
 class Login(ListAPIView):
-    queryset = User.object.all()
+    queryset = User.objects.all()
     authentication_classes = (BasicAuthentication,)
     serializer_class = LoginSerializer
 
@@ -58,44 +65,109 @@ class Login(ListAPIView):
         return queryset.filter(pk=self.request.user.pk)
 
 
-# 将关联性强的view合并到一个viewsets中
+# 注册
+class SignUp(CreateAPIView):
+    serializer_class = SignUpSerializer
 
 
-class UserViewSet(viewsets.ViewSet):
+class UserListViewList(viewsets.ViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    permission_classes = (IsAdminUser,)
 
     def list(self, request):
-        pass
+        serializer = UserSerializer(self.queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request):
-        pass
+        serializer = SignUpSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def retrieve(self, request, pk=None):
-        pass
 
-    def update(self, request, pk=None):
-        pass
+class UserViewSet(viewsets.GenericViewSet):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = UserSerializer
 
-    def partial_update(self, request, pk=None):
-        pass
+    def get_queryset(self):
+        return User.objects.get(pk=self.request.user.pk)
+
+    def retrieve(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk', self.request.user.pk)
+        instance = User.objects.get(pk=pk)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = User.objects.get(pk=self.request.user.pk)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
     def destroy(self, request, pk=None):
-        pass
+        instance = self.get_queryset()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # 对应的url为 ^users/{pk}/me/$
-    @detail_route()
-    def me(self):
-        pass
-
-    # 对应的url为 ^users/nearby/$
+    # 对应的url为 ^users/me/$
     @list_route()
-    def nearby(self):
-        pass
+    def me(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    # 对应的url为 ^users/{pk}/cart/$
+    @detail_route()
+    def cart(self, request, pk=None):
+        user = User.objects.get(pk=pk)
+        queryset = Cart.objects.get(user=user)
+        serializer = CartSerializer(queryset)
+        return Response(serializer.data)
+
+#
+# class ProductViewSet(viewsets.ModelViewSet):
+#     queryset = Product.objects.all()
+#     serializer_class = ProductSerializer
+#     permission_classes = (AllowAny,)
+#
+#     # .list(), .retrieve(), .create(), .update(), .partial_update(), and .destroy().
+#     def create(self, request, *args, **kwargs):
+#         # 权限控制，只有管理员可以新增商品
+#         pass
+#
+#     def update(self, request, *args, **kwargs):
+#         pass
+#
+#     def partial_update(self, request, *args, **kwargs):
+#         pass
+#
+#     def destroy(self, request, *args, **kwargs):
+#         pass
 
 
-class GoodsViewSet(viewsets.ModelViewSet):
-    pass
+class ProductViewSet(ReadOnlyModelViewSet):
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+    permission_classes = (AllowAny,)
+    authentication_classes = (SessionAuthentication,)
+
+
+class ProductAdminViewSet(AlterModelViewSet):
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+    permission_classes = (IsAdminUser, )
+    # authentication_classes = (SessionAuthentication, BasicAuthentication)
+    authentication_classes = (BasicAuthentication,)
+
+
+
+
+
+
 
 
 
