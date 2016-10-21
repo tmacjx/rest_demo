@@ -14,9 +14,9 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAdminUser, AllowAny
 from models import Product, Cart
 from rest_framework import status
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from viewSet import AlterModelViewSet
-
+from permissions import IsAdminOrReadOnly
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -86,11 +86,13 @@ class UserListViewList(viewsets.ViewSet):
 
 
 class UserViewSet(viewsets.GenericViewSet):
+    queryset = User.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        return User.objects.get(pk=self.request.user.pk)
+        queryset = super(UserViewSet, self).get_queryset()
+        return queryset.filter(pk=self.request.user.pk)
 
     def retrieve(self, request, *args, **kwargs):
         pk = kwargs.pop('pk', self.request.user.pk)
@@ -128,41 +130,14 @@ class UserViewSet(viewsets.GenericViewSet):
         serializer = CartSerializer(queryset)
         return Response(serializer.data)
 
-#
-# class ProductViewSet(viewsets.ModelViewSet):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#     permission_classes = (AllowAny,)
-#
-#     # .list(), .retrieve(), .create(), .update(), .partial_update(), and .destroy().
-#     def create(self, request, *args, **kwargs):
-#         # 权限控制，只有管理员可以新增商品
-#         pass
-#
-#     def update(self, request, *args, **kwargs):
-#         pass
-#
-#     def partial_update(self, request, *args, **kwargs):
-#         pass
-#
-#     def destroy(self, request, *args, **kwargs):
-#         pass
 
-
-class ProductViewSet(ReadOnlyModelViewSet):
+# 默认用户 无需auth                list retrieve
+# 管理员 需要auth  permisson控制   create() update() partial_update()  destroy()
+class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
-    permission_classes = (AllowAny,)
-    authentication_classes = (SessionAuthentication,)
-
-
-class ProductAdminViewSet(AlterModelViewSet):
-    serializer_class = ProductSerializer
-    queryset = Product.objects.all()
-    permission_classes = (IsAdminUser, )
-    # authentication_classes = (SessionAuthentication, BasicAuthentication)
-    authentication_classes = (BasicAuthentication,)
-
+    permission_classes = (IsAdminOrReadOnly,)
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
 
 
 

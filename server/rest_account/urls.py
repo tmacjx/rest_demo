@@ -1,22 +1,24 @@
 # coding=utf-8
 from django.conf.urls import include, url
-from api import Login, UserViewSet, ProductViewSet, SignUp, UserListViewList, ProductAdminViewSet
+from api import Login, UserViewSet, ProductViewSet, SignUp, UserListViewList
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register('users', UserViewSet, base_name='users')
-router.register('users', UserListViewList, base_name='users_list')
+# router = routers.SimpleRouter()
 
-router.register('products', ProductViewSet, base_name='products')
-router.register('products', ProductAdminViewSet, base_name='products_admin')
+router.register('users', UserViewSet)
+router.register('users', UserListViewList)
+
+router.register('products', ProductViewSet)
+# router.register('products', ProductAdminViewSet)
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
+    url(r'', include(router.urls)),
 
 
-    url(r'^login/$', Login.as_view(), name='login'),
+    url(r'login/$', Login.as_view(), name='login'),
     # url(r'^signin/$', SignIn.as_view(), name='sign'),
-    url(r'^signup/$', SignUp.as_view(), name='signup'),
+    url(r'signup/$', SignUp.as_view(), name='signup'),
 
 ]
 

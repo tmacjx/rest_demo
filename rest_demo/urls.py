@@ -16,15 +16,17 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from views import index
 
 api_v1 = [
 
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
     # url(r'', include('BHU.rest_user.urls'))
-    url(r'^', include('account.urls')),
+    # url(r'', include('account.urls')),
 
-    url(r'^', include('server.rest_account.urls')),
+    url(r'', include('server.rest_account.urls')),
 
 ]
 
@@ -32,6 +34,8 @@ api_v1 = [
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
+
+    url(r'^index/$', index, name='index'),
 
     url(r'^api/v1/', include(api_v1)),
 ]
