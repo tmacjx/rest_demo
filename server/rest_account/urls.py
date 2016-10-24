@@ -1,20 +1,35 @@
 # coding=utf-8
 from django.conf.urls import include, url
-from api import Login, UserViewSet, ProductViewSet, SignUp, UserListViewList
+from api import Login, UserViewSet, ProductViewSet, SignUp, UserListViewList, CartViewSet
 from rest_framework import routers
+from rest_framework_extensions.mixins import DetailSerializerMixin
+from rest_framework_extensions.routers import ExtendedSimpleRouter, ExtendedDefaultRouter
 
-router = routers.DefaultRouter()
-# router = routers.SimpleRouter()
 
-router.register('users', UserViewSet)
-router.register('users', UserListViewList)
+#
+# router = routers.DefaultRouter()
+# # router = routers.SimpleRouter()
+#
+# router.register('users', UserViewSet)
+# router.register('users', UserListViewList)
+#
+# router.register('products', ProductViewSet)
+# # router.register('products', ProductAdminViewSet)
+router = ExtendedDefaultRouter()
+(
+    router.register(r'users', UserListViewList, base_name='users')
+          .register(r'carts', CartViewSet, base_name='carts', parents_query_lookups=['user'])
+)
 
-router.register('products', ProductViewSet)
-# router.register('products', ProductAdminViewSet)
+router2 = routers.DefaultRouter()
+
+router2.register('products', ProductViewSet)
+
 
 urlpatterns = [
     url(r'', include(router.urls)),
 
+    url(r'', include(router2.urls)),
 
     url(r'login/$', Login.as_view(), name='login'),
     # url(r'^signin/$', SignIn.as_view(), name='sign'),
@@ -22,21 +37,3 @@ urlpatterns = [
 
 ]
 
-# 查看所有的user, 权限为admin
-# users/
-
-# user信息
-# cart
-
-# 单个user
-# users/pk／
-# user信息
-# cart
-
-# 单个user下的cart
-# users/pk/cart
-# cart信息
-
-
-# products/pk/
-# 产品信息

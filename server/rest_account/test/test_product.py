@@ -24,7 +24,7 @@ class LoginTests(APITestCase):
     #     self.assertEqual(Account.objects.count(), 1)
     #     self.assertEqual(Account.objects.get().name, 'DabApps')
     def setUp(self):
-        User.objects.get_or_create(username='tmac', password='kk123123')
+        User.objects.get_or_create(username='tmac', password='kk123123', is_superuser=True)
         self.login_url = reverse('login')
 
     def test_login(self):

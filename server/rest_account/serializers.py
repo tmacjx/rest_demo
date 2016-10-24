@@ -1,6 +1,6 @@
 # coding=utf-8
 from rest_framework import serializers
-from models import Product
+from models import Product, Cart
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -12,12 +12,18 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # 关联用户的cart 超链接
     class Meta:
         model = User
         fields = '__all__'
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        user = super(SignUpSerializer, self).create(validated_data)
+        Cart.objects.create(user=user)
+        return user
+
     class Meta:
         model = User
         fields = ('username', 'password')
@@ -46,5 +52,17 @@ class ProductSerializer(serializers.Serializer):
             return value
 
 
-class CartSerializer(serializers.Serializer):
-    pass
+class CartSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+         # 新增product
+         pass
+
+    class Meta:
+        model = Cart
+        fields = '__all__'
+
+
+
+
+

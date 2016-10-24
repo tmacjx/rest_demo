@@ -18,43 +18,13 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from viewSet import AlterModelViewSet
 from permissions import IsAdminOrReadOnly
 from django.contrib.auth import get_user_model
+from rest_framework_extensions.mixins import NestedViewSetMixin
+from models import Cart
 User = get_user_model()
 
-
-from django.views.generic.base import View
-
-
-class CartView(APIView):
-    # 继承自APIView(定义了框架级别默认的一些属性）
-    # 单个view可以覆盖
-
-    # get(), post(), put(), patch(), delete().
-    # 序列化 python object -> json？html？
-    renderer_classes = (JSONRenderer,)
-    # 反序列化 默认json -> python object?
-    parser_classes = (JSONParser,)
-    # 权限
-    permission_classes = (IsAuthenticated,)
-    # 认证
-    authentication_classes = (SessionAuthentication,)
-
-    def get(self, request, pk):
-        pass
-
-    def post(self, request, pk):
-        pass
-
-    def put(self, request):
-        pass
-
-    def patch(self, request):
-        pass
-
-    def delete(self, request, pk):
-        pass
-
-
 # 用作API测试登陆用
+
+
 class Login(ListAPIView):
     queryset = User.objects.all()
     authentication_classes = (BasicAuthentication,)
@@ -139,6 +109,10 @@ class ProductViewSet(ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     authentication_classes = (SessionAuthentication, BasicAuthentication)
 
+
+class CartViewSet(NestedViewSetMixin, ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
 
 
 
