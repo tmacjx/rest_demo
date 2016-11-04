@@ -8,7 +8,8 @@ from rest_framework.authentication import BasicAuthentication, SessionAuthentica
 
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 
-from serializers import LoginSerializer, UserSerializer, SignUpSerializer, CartSerializer, ProductSerializer
+from serializers import LoginSerializer, UserSerializer, SignUpSerializer, CartSerializer, ProductSerializer, \
+    SignInSerializer
 
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAdminUser, AllowAny
@@ -17,14 +18,14 @@ from rest_framework import status
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from viewSet import AlterModelViewSet
 from permissions import IsAdminOrReadOnly
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from models import Cart
+from rest_framework.exceptions import AuthenticationFailed
 User = get_user_model()
 
+
 # 用作API测试登陆用
-
-
 class Login(ListAPIView):
     queryset = User.objects.all()
     authentication_classes = (BasicAuthentication,)
@@ -33,6 +34,30 @@ class Login(ListAPIView):
     def get_queryset(self):
         queryset = super(Login, self).get_queryset()
         return queryset.filter(pk=self.request.user.pk)
+
+
+class SignIn(APIView):
+    """
+    Same function as `Login` but doesn't use basic auth. This is for web clients,
+    so we don't see a browser popup for basic auth.
+    """
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        if 'username' not in request.data:
+            msg = 'Username required'
+            raise AuthenticationFailed(msg)
+        elif 'password' not in request.data:
+            msg = 'Password required'
+            raise AuthenticationFailed(msg)
+
+        user = authenticate(username=request.data['username'], password=request.data['password'])
+        if user is None or not user.is_active:
+            raise AuthenticationFailed('Invalid username or password')
+        # 设置cookie
+        login(request, user)
+        serializer = SignInSerializer(instance=user)
+        return Response(serializer.data, status=200)
 
 
 # 注册

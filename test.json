@@ -1,0 +1,189 @@
+{
+    "urls": [
+        {
+            "url": "sign_up/",
+            "doc": "Creates a new user and returns client_id and client_secret",
+            "post": {
+                "#meta": "",
+                "doc": "Expects a base64 encoded password",
+                "request": "$signUpRequest",
+                "response": {
+                    "200+": "$signUpResponse"
+                }
+            }
+        },
+        {
+            "url": "login/",
+            "doc": "Authenticates an existing user and returns client_id and client_secret",
+            "get": {
+                "#meta": "basicauth",
+                "response": {
+                    "200+": "$loginResponse"
+                }
+            }
+        },
+        {
+            "url": "o/token/",
+            "doc": "Provides access token for authenticated calls throughout the app",
+            "post": {
+                "#meta": "",
+                "doc": "Request object must be passed with Content-Type application/x-www-form-urlencoded. grant_type should be set to 'client_credentials'",
+                "request": "$tokenRequest",
+                "response": {
+                    "200+": "$tokenResponse"
+                }
+            }
+        },
+        {
+            "url": "posts/",
+            "get": {
+                "#meta" : "oauth2,optional",
+                "doc": "Gets a list of all posts",
+                "response": {
+                    "200+": "$postResponse"
+                }
+            },
+            "post": {
+                "#meta": "oauth2",
+                "doc": "Create a post",
+                "request": "$postRequest",
+                "response": {
+                    "200+": "$postResponse"
+                }
+            }
+        },
+        {
+            "url": "posts/:id/",
+            "get": {
+                "#meta" : "oauth2,optional",
+                "doc": "Gets a single post",
+                "response": {
+                    "200+": "$postResponse"
+                }
+            },
+            "patch": {
+                "#meta": "oauth2",
+                "doc": "Update a post",
+                "request": "$postRequest",
+                "response": {
+                    "200+": "$postResponse"
+                }
+            },
+            "delete": {
+                "#meta": "oauth2"
+            }
+        },
+        {
+            "url": "shares/",
+            "post": {
+                "#meta": "oauth2",
+                "doc": "Shares an object with another user",
+                "request": "$shareRequest",
+                "response": {
+                    "200+": "$shareResponse"
+                }
+            }
+        },
+        {
+            "url": "users/",
+            "get": {
+                "#meta": "oauth2,optional",
+                "doc": "Returns a list of all users. Can be searched to use as an autocomplete tool. Search query will search username and full name",
+                "parameters": "$userParameters",
+                "response": {
+                    "200+": "$userResponse"
+                }
+            }
+        },
+        {
+            "url": "users/:id/",
+            "get": {
+                "#meta": "oauth2,optional",
+                "doc": "Returns a single user based on id.",
+                "response": {
+                    "200+": "$userResponse"
+                }
+            }
+        },
+        {
+            "url": "users/me/",
+            "get": {
+                "#meta": "oauth2",
+                "doc": "Returns the currently logged in user",
+                "resource_type": "detail",
+                "response": {
+                    "200+": "$userResponse"
+                }
+            }
+        }
+    ],
+    "objects": [
+        {"$signUpRequest": {
+            "username": "string",
+            "email": "string,optional",
+            "password": "string"
+        }},
+        {"$signUpResponse": {
+            "username": "string",
+            "email": "string,optional",
+            "client_id": "string",
+            "client_secret": "string"
+        }},
+        {"$loginResponse": {
+            "client_id": "string",
+            "client_secret": "string"
+        }},
+        {"$tokenRequest": {
+            "client_id": "string",
+            "client_secret": "string",
+            "grant_type": "string"
+        }},
+        {"$tokenResponse": {
+            "access_token": "string",
+            "token_type": "string",
+            "expires_in": "int",
+            "scope": "string"
+        }},
+        {"$userParameters": {
+            "search": "string,optional"
+        }},
+        {"$userResponse": {
+            "email": "string,optional",
+            "id": "int,primarykey",
+            "username": "string",
+            "thumbnail": "string",
+            "original_photo": "string",
+            "about": "string"
+        }},
+        {"$userRequest": {
+            "email": "string,optional",
+            "username": "string,optional",
+            "original_photo": "string,optional",
+            "about": "string,optional"
+        }},
+        {"$postRequest": {
+            "title": "string,optional",
+            "description": "string,optional",
+            "thumbnail": "image,optional"
+        }},
+        {"$postResponse": {
+            "id": "int,primarykey",
+            "title": "string,optional",
+            "description": "string,optional",
+            "user": "M2O,$userResponse"
+        }},
+        {"$shareResponse": {
+            "user": "M2O,$userResponse",
+            "id": "int,primarykey",
+            "created": "datetime",
+            "content_type": "int",
+            "object_id": "int",
+            "shared_with": "array,int"
+        }},
+        {"$shareRequest": {
+            "content_type": "int",
+            "object_id": "int",
+            "shared_with": "array,int"
+        }}
+    ]
+}

@@ -17,22 +17,20 @@
 <div class="btn"></div>
 
 
-
-
 <script type="text/javascript" src="/static/jquery.min.js" charset="utf-8"></script>
-<script src="/static/jquery.cookie.js"></script>
-
 <script>
-    var url_= '127.0.0.1:8000';
+    var url_ = '127.0.0.1:8000';
     var data_ = {
         'username': 'tracy',
         'password': 'kk123123',
-        'csrfmiddlewaretoken': $.cookie('csrftoken')
+        'client_id': 'JRDsilB0OWPi29putXA7HqK4g5haB55HIJcu3t4s',
+        'grant_type': 'password'
     }
     $('.btn').click(function(){
+        alert(8888)
         $.ajax({
             type: 'POST',
-            url: '/api/v1/signin/' ,
+            url: '/api/v1/o/token/' ,
             data: data_ ,
             success: function(data){
                 console.log('data===')

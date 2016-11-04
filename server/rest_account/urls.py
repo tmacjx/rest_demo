@@ -1,6 +1,6 @@
 # coding=utf-8
 from django.conf.urls import include, url
-from api import Login, UserViewSet, ProductViewSet, SignUp, UserListViewList, CartViewSet
+from api import Login, UserViewSet, ProductViewSet, SignUp, UserListViewList, CartViewSet, SignIn
 from rest_framework import routers
 from rest_framework_extensions.mixins import DetailSerializerMixin
 from rest_framework_extensions.routers import ExtendedSimpleRouter, ExtendedDefaultRouter
@@ -34,6 +34,8 @@ urlpatterns = [
     url(r'login/$', Login.as_view(), name='login'),
     # url(r'^signin/$', SignIn.as_view(), name='sign'),
     url(r'signup/$', SignUp.as_view(), name='signup'),
+
+    url(r'signin/$', SignIn.as_view(), name='signin'),
 
 ]
 

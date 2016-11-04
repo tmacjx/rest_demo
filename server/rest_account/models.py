@@ -14,5 +14,5 @@ class Product(models.Model):
 
 
 class Cart(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='cart')
     product = models.ManyToManyField(Product)

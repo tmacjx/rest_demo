@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TRYING</title>
+    <style>
+        .btn{
+            width: 120px;
+            height: 120px;
+            display: block;
+            margin: 120px;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+<div ng-app="myApp" ng-controller="siteCtrl">
+    
+</div>
+<script type="text/javascript" src="/static/angular.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="/static/angular-loader.min.js" charset="utf-8"></script>
+<script>
+    var app = angular.module('myApp', []);
+    app.controller('siteCtrl', function($scope, $http) {
+        var url_ = 'a.com.www';
+        var data_ = {
+            'name': '123'
+        };
+        var p = $http({
+            method: 'post',
+            url: url_,
+            data: data_
+        });
+        p.success(function(response, status, headers, config){
+            $scope.name = response.name;
+            console.log('data=')
+            console.log(response);
+            alert('this is ok!!!')
+        });
+    });
+</script>
+</body>
+</html>

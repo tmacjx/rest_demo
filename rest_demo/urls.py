@@ -14,9 +14,11 @@ Including another URLconf
     2. Import the include() function: from django.conf.urls import url, include
     3. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import url, include
+from django.conf.urls import url, include, patterns
 from django.contrib import admin
-from views import index
+from views import index, trya, tryj
+from django.conf import settings
+from django.conf.urls.static import static
 
 api_v1 = [
 
@@ -37,5 +39,18 @@ urlpatterns = [
 
     url(r'^index/$', index, name='index'),
 
+    url(r'^Test1/$', tryj, name='test1'),
+
+    url(r'^Test2/$', trya, name='test2'),
+
     url(r'^api/v1/', include(api_v1)),
 ]
+# ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# if settings.DEBUG:
+#     urlpatterns = patterns('',
+#                            url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
+#                                {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+#                            url(r'', include(
+#                                'django.contrib.staticfiles.urls')),
+#                            ) + urlpatterns

@@ -11,16 +11,16 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ('username', 'password')
 
 
-class UserSerializer(serializers.ModelSerializer):
-    # 关联用户的cart 超链接
+class SignInSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ('username', )
 
 
 class SignUpSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = super(SignUpSerializer, self).create(validated_data)
+        # 初始化一个cart
         Cart.objects.create(user=user)
         return user
 
@@ -54,14 +54,29 @@ class ProductSerializer(serializers.Serializer):
 
 class CartSerializer(serializers.ModelSerializer):
 
-    def create(self, validated_data):
-         # 新增product
-         pass
+    # def create(self, validated_data):
+    #      # TODO 新增product
+    #      pass
 
     class Meta:
         model = Cart
         fields = '__all__'
 
+
+# class UserSerializer(serializers.ModelSerializer):
+#     # 关联用户的cart 超链接
+#     cart = CartSerializer(many=True, read_only=True)
+#
+#     class Meta:
+#         model = User
+#         fields = ('username', 'cart')
+
+class UserSerializer(serializers.ModelSerializer):
+    # 关联用户的cart 超链接
+
+    class Meta:
+        model = User
+        fields = '__all__'
 
 
 
